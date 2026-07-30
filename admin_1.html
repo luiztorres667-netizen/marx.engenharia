@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marx Engenharia — Painel Administrativo</title>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@900&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --g:#1C1F1D;--gs:#2A2D2B;--g3:#33383A;
+  --green:#00FF88;--gd:#00B868;
+  --bg:#F0EEE6;--bg2:#E2DDCE;--paper:#fff;
+  --steel:#4A5A63;--line:rgba(255,255,255,.1);
+  --danger:#E74C3C;--warn:#F39C12;--info:#3498DB;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--g);display:flex;height:100vh;overflow:hidden;}
+
+/* ── Sidebar ── */
+.sidebar{width:240px;background:var(--g);color:#f0eee6;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;}
+.sb-logo{padding:20px 18px 16px;border-bottom:1px solid var(--line);}
+.sb-logo .word{font-family:'Big Shoulders Display';font-size:22px;font-weight:900;color:#f0eee6;}
+.sb-logo .sub{font-family:'IBM Plex Mono';font-size:9px;letter-spacing:.15em;color:var(--gd);display:block;margin-top:1px;}
+.sb-logo .panel-label{font-family:'IBM Plex Mono';font-size:10px;color:var(--green);letter-spacing:.1em;margin-top:10px;display:block;}
+.sb-nav{flex:1;padding:16px 0;}
+.sb-section{font-family:'IBM Plex Mono';font-size:9.5px;letter-spacing:.12em;color:#607080;padding:12px 18px 6px;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 18px;cursor:pointer;color:#CBD2CB;font-size:13.5px;font-weight:500;border-left:3px solid transparent;transition:background .15s,color .15s,border-color .15s;}
+.nav-item:hover{background:rgba(255,255,255,.06);color:#f0eee6;}
+.nav-item.active{background:rgba(0,255,136,.08);color:var(--green);border-left-color:var(--green);}
+.nav-item svg{width:17px;height:17px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.sb-user{padding:16px 18px;border-top:1px solid var(--line);}
+.sb-user .uname{font-size:13px;font-weight:600;color:#f0eee6;}
+.sb-user .urole{font-family:'IBM Plex Mono';font-size:10px;color:var(--gd);letter-spacing:.06em;margin-top:2px;}
+.btn-logout{width:100%;margin-top:10px;background:none;border:1px solid rgba(255,255,255,.2);color:#9AA39A;font-family:'IBM Plex Mono';font-size:11px;padding:8px;border-radius:2px;cursor:pointer;transition:background .15s,color .15s;}
+.btn-logout:hover{background:var(--danger);color:#fff;border-color:var(--danger);}
+
+/* ── Main area ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.topbar{background:var(--paper);border-bottom:2px solid var(--bg2);padding:14px 28px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+.topbar h1{font-family:'Big Shoulders Display';font-size:22px;text-transform:uppercase;}
+.topbar .date{font-family:'IBM Plex Mono';font-size:11px;color:var(--steel);}
+.content{flex:1;overflow-y:auto;padding:28px;}
+
+/* ── Pages ── */
+.page{display:none;}
+.page.active{display:block;}
+
+/* ── KPI cards ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr);}}
+.kpi{background:var(--paper);border:2px solid var(--g);border-radius:4px;padding:20px;position:relative;overflow:hidden;}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:4px;}
+.kpi.green::after{background:var(--green);}
+.kpi.blue::after{background:var(--info);}
+.kpi.orange::after{background:var(--warn);}
+.kpi.red::after{background:var(--danger);}
+.kpi .label{font-family:'IBM Plex Mono';font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--steel);margin-bottom:8px;}
+.kpi .value{font-family:'Big Shoulders Display';font-size:36px;font-weight:900;line-height:1;}
+.kpi .sub{font-size:12px;color:var(--steel);margin-top:5px;}
+.kpi svg{position:absolute;bottom:14px;right:14px;width:28px;height:28px;color:var(--bg2);fill:none;stroke:currentColor;stroke-width:1.5;}
+
+/* ── Section cards ── */
+.section-card{background:var(--paper);border:2px solid var(--g);border-radius:4px;margin-bottom:20px;overflow:hidden;}
+.section-head{padding:16px 20px;border-bottom:2px solid var(--bg2);display:flex;justify-content:space-between;align-items:center;}
+.section-head h3{font-family:'Big Shoulders Display';font-size:18px;text-transform:uppercase;}
+.section-head span{font-family:'IBM Plex Mono';font-size:11px;color:var(--steel);}
+.section-body{padding:20px;}
+
+/* ── Charts ── */
+.chart-row{display:grid;grid-template-columns:1.6fr 1fr;gap:20px;margin-bottom:20px;}
+@media(max-width:900px){.chart-row{grid-template-columns:1fr;}}
+.bar-chart{display:flex;flex-direction:column;gap:10px;}
+.bar-item{display:grid;grid-template-columns:140px 1fr 50px;align-items:center;gap:10px;}
+.bar-label{font-family:'IBM Plex Mono';font-size:11px;color:var(--steel);text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}
+.bar-track{height:10px;background:var(--bg2);border-radius:10px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:10px;transition:width .8s ease;}
+.bar-val{font-family:'IBM Plex Mono';font-size:11px;font-weight:600;text-align:right;}
+
+/* ── Donut chart ── */
+.donut-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;}
+.donut-legend{width:100%;}
+.legend-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bg2);font-size:12.5px;}
+.legend-item:last-child{border-bottom:none;}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.legend-name{flex:1;}
+.legend-val{font-family:'IBM Plex Mono';font-size:12px;font-weight:600;}
+
+/* ── Users table ── */
+.users-table{width:100%;border-collapse:collapse;}
+.users-table th{font-family:'IBM Plex Mono';font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--steel);padding:10px 14px;text-align:left;border-bottom:2px solid var(--bg2);background:var(--bg);}
+.users-table td{padding:12px 14px;border-bottom:1px solid var(--bg2);font-size:13.5px;vertical-align:middle;}
+.users-table tr:last-child td{border-bottom:none;}
+.users-table tr:hover td{background:#FAFAF8;}
+.role-badge{display:inline-block;font-family:'IBM Plex Mono';font-size:10px;letter-spacing:.06em;padding:3px 8px;border-radius:20px;text-transform:uppercase;}
+.role-badge.admin{background:var(--g);color:var(--green);}
+.role-badge.gestor{background:#1A237E;color:#90CAF9;}
+.role-badge.vendedor{background:#1B5E20;color:#A5D6A7;}
+.role-badge.cliente{background:var(--bg2);color:var(--steel);}
+.role-select{border:1.5px solid var(--g);border-radius:2px;padding:5px 8px;font-family:'IBM Plex Mono';font-size:11px;background:var(--paper);cursor:pointer;}
+.role-select:focus{outline:none;border-color:var(--gd);}
+.save-role-btn{margin-left:6px;background:var(--green);color:var(--g);border:1.5px solid var(--g);border-radius:2px;padding:5px 10px;font-family:'IBM Plex Mono';font-size:10px;font-weight:700;cursor:pointer;transition:background .15s;}
+.save-role-btn:hover{background:var(--gd);}
+
+/* ── Empty state ── */
+.empty{text-align:center;padding:40px;color:var(--steel);font-family:'IBM Plex Mono';font-size:12.5px;}
+
+/* ── Reports ── */
+.month-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;align-items:flex-end;height:120px;margin:16px 0;}
+.month-bar{display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;}
+.month-bar .fill{width:100%;border-radius:3px 3px 0 0;margin-top:auto;transition:height .6s ease;}
+.month-bar .mlabel{font-family:'IBM Plex Mono';font-size:8px;color:var(--steel);}
+
+/* ── Access denied ── */
+.access-denied{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;text-align:center;padding:20px;}
+.access-denied h1{font-family:'Big Shoulders Display';font-size:48px;text-transform:uppercase;}
+
+.loading{min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono';color:var(--steel);}
+</style>
+</head>
+<body>
+
+<!-- Loading screen -->
+<div class="loading" id="screen-loading">Verificando acesso…</div>
+
+<!-- Access denied -->
+<div class="access-denied" id="screen-denied" style="display:none">
+  <h1>Acesso Negado</h1>
+  <p>Você não tem permissão para acessar esta área.</p>
+  <a href="index.html" style="color:var(--gd);font-family:'IBM Plex Mono';font-size:13px;">← Voltar ao catálogo</a>
+</div>
+
+<!-- Main app -->
+<div id="screen-app" style="display:none;width:100%;display:flex;height:100vh;">
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <span class="word">MARX</span>
+    <span class="sub">ENGENHARIA SCIENTIFIC STUDY</span>
+    <span class="panel-label">// PAINEL ADMINISTRATIVO</span>
+  </div>
+
+  <nav class="sb-nav">
+    <div class="sb-section">Principal</div>
+    <div class="nav-item active" onclick="showPage('dashboard')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-item" onclick="showPage('relatorios')">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Relatórios
+    </div>
+
+    <div class="sb-section" id="sb-admin-section">Administração</div>
+    <div class="nav-item" id="nav-usuarios" onclick="showPage('usuarios')">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Usuários
+    </div>
+
+    <div class="sb-section">Site</div>
+    <div class="nav-item" onclick="window.open('index.html','_blank')">
+      <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      Ver o Site
+    </div>
+  </nav>
+
+  <div class="sb-user">
+    <div class="uname" id="sb-username">Carregando...</div>
+    <div class="urole" id="sb-userrole"></div>
+    <button class="btn-logout" onclick="doLogout()">Sair da conta</button>
+  </div>
+</aside>
+
+<!-- Main content -->
+<div class="main">
+  <div class="topbar">
+    <h1 id="page-title">Dashboard</h1>
+    <span class="date" id="today-date"></span>
+  </div>
+
+  <div class="content">
+
+    <!-- ── DASHBOARD ── -->
+    <div class="page active" id="page-dashboard">
+      <div class="kpi-grid">
+        <div class="kpi green">
+          <div class="label">Produtos no Catálogo</div>
+          <div class="value" id="kpi-produtos">—</div>
+          <div class="sub">itens cadastrados</div>
+          <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
+        </div>
+        <div class="kpi blue">
+          <div class="label">Usuários Cadastrados</div>
+          <div class="value" id="kpi-usuarios">—</div>
+          <div class="sub">contas ativas</div>
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        </div>
+        <div class="kpi orange">
+          <div class="label">Categorias</div>
+          <div class="value" id="kpi-categorias">—</div>
+          <div class="sub">linhas de produto</div>
+          <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        </div>
+        <div class="kpi red">
+          <div class="label">Vendas no Mês</div>
+          <div class="value" id="kpi-vendas">R$ 0</div>
+          <div class="sub" id="kpi-vendas-sub">funcionalidade em breve</div>
+          <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+      </div>
+
+      <div class="chart-row">
+        <div class="section-card">
+          <div class="section-head">
+            <h3>Produtos por Categoria</h3>
+            <span id="chart-total">0 itens</span>
+          </div>
+          <div class="section-body">
+            <div class="bar-chart" id="bar-categorias"></div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-head">
+            <h3>Usuários por Cargo</h3>
+            <span id="donut-total">0 usuários</span>
+          </div>
+          <div class="section-body">
+            <div class="donut-wrap">
+              <svg id="donut-svg" viewBox="0 0 120 120" width="130" height="130">
+                <circle cx="60" cy="60" r="45" fill="none" stroke="#E2DDCE" stroke-width="22"/>
+                <g id="donut-arcs"></g>
+              </svg>
+              <div class="donut-legend" id="donut-legend"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-head">
+          <h3>Atividade Recente de Usuários</h3>
+          <span>últimos cadastros</span>
+        </div>
+        <div class="section-body" style="padding:0;">
+          <table class="users-table" id="recent-users-table">
+            <thead><tr><th>Nome</th><th>E-mail</th><th>Cargo</th><th>Cadastro</th></tr></thead>
+            <tbody id="recent-users-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RELATÓRIOS ── -->
+    <div class="page" id="page-relatorios">
+      <div class="section-card" style="margin-bottom:20px;">
+        <div class="section-head"><h3>Valor Total do Catálogo</h3><span>soma dos preços cadastrados</span></div>
+        <div class="section-body">
+          <div style="font-family:'Big Shoulders Display';font-size:48px;" id="total-catalogo">R$ —</div>
+          <p style="font-family:'IBM Plex Mono';font-size:12px;color:var(--steel);margin-top:8px;" id="total-catalogo-sub"></p>
+        </div>
+      </div>
+
+      <div class="section-card" style="margin-bottom:20px;">
+        <div class="section-head"><h3>Produtos com Foto Real</h3><span>vs. sem foto</span></div>
+        <div class="section-body">
+          <div class="bar-chart">
+            <div class="bar-item">
+              <span class="bar-label">Com foto real</span>
+              <div class="bar-track"><div class="bar-fill" id="bar-comfoto" style="background:var(--gd);width:0%"></div></div>
+              <span class="bar-val" id="val-comfoto">0</span>
+            </div>
+            <div class="bar-item">
+              <span class="bar-label">Sem foto (CDN)</span>
+              <div class="bar-track"><div class="bar-fill" id="bar-semfoto" style="background:var(--info);width:0%"></div></div>
+              <span class="bar-val" id="val-semfoto">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-head"><h3>Vendas Mensais</h3><span>em breve</span></div>
+        <div class="section-body">
+          <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:8px;">
+            <span style="font-family:'IBM Plex Mono';font-size:11px;color:var(--steel);">JAN — DEZ 2026</span>
+            <span style="font-family:'Big Shoulders Display';font-size:22px;" id="ano-total">R$ 0,00</span>
+          </div>
+          <div class="month-grid" id="month-chart"></div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <span id="legend-meses"></span>
+          </div>
+          <p style="font-family:'IBM Plex Mono';font-size:11px;color:var(--steel);margin-top:12px;">📌 Dados de vendas serão integrados na próxima fase do sistema.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── USUÁRIOS ── -->
+    <div class="page" id="page-usuarios">
+      <div class="section-card">
+        <div class="section-head">
+          <h3>Gerenciar Usuários</h3>
+          <span id="users-count">0 usuários</span>
+        </div>
+        <div class="section-body" style="padding:0;">
+          <table class="users-table" id="users-table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Cargo atual</th>
+                <th>Cadastro</th>
+                <th>Último acesso</th>
+                <th>Alterar cargo</th>
+              </tr>
+            </thead>
+            <tbody id="users-tbody">
+              <tr><td colspan="6" class="empty">Carregando usuários...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /screen-app -->
+
+<script type="module">
+import { initializeApp }     from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, onAuthStateChanged, signOut }
+  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getFirestore, doc, getDoc, getDocs, setDoc, collection, query, orderBy, limit }
+  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+const FIREBASE_CONFIG = {
+  apiKey:"AIzaSyCw3DiBpHlGp8dN9ZSESI6_aq_qsxo5pYw",
+  authDomain:"marx-engenharia.firebaseapp.com",
+  projectId:"marx-engenharia",
+  storageBucket:"marx-engenharia.firebasestorage.app",
+  messagingSenderId:"210866809274",
+  appId:"1:210866809274:web:66387a9a8f6c15f8841583"
+};
+
+const app  = initializeApp(FIREBASE_CONFIG);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+let currentUserRole = '';
+let allProducts = [];
+let allUsers = [];
+
+// ── Auth guard ──────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  const snap = await getDoc(doc(db,'users',user.uid));
+  if (!snap.exists()) { window.location.href = 'login.html'; return; }
+  const data = snap.data();
+  currentUserRole = data.role;
+
+  if (!['admin','gestor'].includes(currentUserRole)) {
+    document.getElementById('screen-loading').style.display = 'none';
+    document.getElementById('screen-denied').style.display = 'flex';
+    return;
+  }
+
+  // Setup UI
+  document.getElementById('sb-username').textContent = data.name || user.email;
+  document.getElementById('sb-userrole').textContent = currentUserRole.toUpperCase();
+  document.getElementById('today-date').textContent = new Date().toLocaleDateString('pt-BR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  // Hide user management for gestor
+  if (currentUserRole !== 'admin') {
+    document.getElementById('sb-admin-section').style.display = 'none';
+    document.getElementById('nav-usuarios').style.display = 'none';
+  }
+
+  document.getElementById('screen-loading').style.display = 'none';
+  document.getElementById('screen-app').style.display = 'flex';
+
+  await loadData();
+});
+
+// ── Load all data ────────────────────────────────────────────────────────
+async function loadData() {
+  await Promise.all([loadProducts(), loadUsers()]);
+  renderDashboard();
+  renderRelatorios();
+}
+
+async function loadProducts() {
+  try {
+    const snap = await getDoc(doc(db,'catalog','products'));
+    allProducts = snap.exists() ? (snap.data().items || []) : [];
+  } catch(e) { allProducts = []; }
+}
+
+async function loadUsers() {
+  try {
+    const snap = await getDocs(collection(db,'users'));
+    allUsers = snap.docs.map(d => ({id: d.id, ...d.data()}));
+  } catch(e) { allUsers = []; }
+}
+
+// ── Dashboard ────────────────────────────────────────────────────────────
+function renderDashboard() {
+  // KPIs
+  document.getElementById('kpi-produtos').textContent = allProducts.length + '+';
+  document.getElementById('kpi-usuarios').textContent = allUsers.length;
+
+  // Count unique subcategories
+  const subs = new Set(allProducts.map(p => p.sub));
+  document.getElementById('kpi-categorias').textContent = subs.size;
+
+  // Bar chart: products per subcategory
+  const subCount = {};
+  const subNames = {
+    ferramentas:'Ferramentas & EPI', eletrica:'Elétrica', hidraulica:'Hidráulica',
+    pisos:'Pisos & Revest.', alvenaria:'Alvenaria', ferragens:'Ferragens',
+    pintura:'Pintura', madeiras:'Madeiras', cobertura:'Cobertura',
+    portas:'Portas & Janelas', gesso:'Gesso & Drywall', loucas:'Louças & Metais',
+    jardim:'Jardim', limpeza:'Limpeza', mobcorp:'Mob. Corporativo',
+    diagnostico:'Diagnóstico', mobiliario:'Mob. Clínico', laboratorio:'Laboratório',
+    descartaveis:'Descartáveis',
+  };
+  allProducts.forEach(p => { subCount[p.sub] = (subCount[p.sub]||0)+1; });
+  const sorted = Object.entries(subCount).sort((a,b)=>b[1]-a[1]);
+  const maxCount = sorted[0]?.[1] || 1;
+  const barColors = ['#00B868','#3498DB','#F39C12','#9B59B6','#E74C3C','#1ABC9C','#E67E22'];
+
+  document.getElementById('chart-total').textContent = allProducts.length + ' itens';
+  const barEl = document.getElementById('bar-categorias');
+  barEl.innerHTML = sorted.slice(0,10).map(([ sub, cnt ], i) => `
+    <div class="bar-item">
+      <span class="bar-label">${subNames[sub]||sub}</span>
+      <div class="bar-track"><div class="bar-fill" style="background:${barColors[i%barColors.length]};width:${Math.round(cnt/maxCount*100)}%"></div></div>
+      <span class="bar-val">${cnt}</span>
+    </div>`).join('');
+
+  // Donut: users by role
+  const roleCount = {admin:0, gestor:0, vendedor:0, cliente:0};
+  allUsers.forEach(u => { if (roleCount[u.role]!==undefined) roleCount[u.role]++; });
+  const roleColors = {admin:'#1C1F1D', gestor:'#1565C0', vendedor:'#2E7D32', cliente:'#607D8B'};
+  const roleLabels = {admin:'Admin', gestor:'Gestor', vendedor:'Vendedor', cliente:'Cliente'};
+  const total = allUsers.length || 1;
+  document.getElementById('donut-total').textContent = allUsers.length + ' usuários';
+
+  // Draw donut
+  const arcs = document.getElementById('donut-arcs');
+  arcs.innerHTML = '';
+  let offset = 0;
+  const circ = 2 * Math.PI * 45;
+  Object.entries(roleCount).forEach(([role, cnt]) => {
+    if (!cnt) return;
+    const pct = cnt / total;
+    const dash = pct * circ;
+    const arc = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    arc.setAttribute('cx','60'); arc.setAttribute('cy','60'); arc.setAttribute('r','45');
+    arc.setAttribute('fill','none'); arc.setAttribute('stroke',roleColors[role]);
+    arc.setAttribute('stroke-width','22');
+    arc.setAttribute('stroke-dasharray',`${dash} ${circ-dash}`);
+    arc.setAttribute('stroke-dashoffset', -offset * circ + circ/4);
+    arcs.appendChild(arc);
+    offset += pct;
+  });
+
+  const legend = document.getElementById('donut-legend');
+  legend.innerHTML = Object.entries(roleCount).map(([role,cnt]) => `
+    <div class="legend-item">
+      <div class="legend-dot" style="background:${roleColors[role]}"></div>
+      <span class="legend-name">${roleLabels[role]}</span>
+      <span class="legend-val">${cnt}</span>
+    </div>`).join('');
+
+  // Recent users table
+  const tbody = document.getElementById('recent-users-body');
+  const recent = [...allUsers].sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0)).slice(0,5);
+  tbody.innerHTML = recent.map(u => `
+    <tr>
+      <td><strong>${u.name||'—'}</strong></td>
+      <td style="font-family:'IBM Plex Mono';font-size:12px;">${u.email}</td>
+      <td><span class="role-badge ${u.role}">${u.role}</span></td>
+      <td style="font-family:'IBM Plex Mono';font-size:11px;color:var(--steel);">${fmtDate(u.createdAt)}</td>
+    </tr>`).join('') || '<tr><td colspan="4" class="empty">Nenhum usuário ainda.</td></tr>';
+}
+
+// ── Relatórios ───────────────────────────────────────────────────────────
+function renderRelatorios() {
+  // Total catalog value
+  let total = 0, withPhoto = 0, withoutPhoto = 0;
+  allProducts.forEach(p => {
+    const price = parseBRL(p.price);
+    total += price;
+    if (p.img) withPhoto++; else withoutPhoto++;
+  });
+  document.getElementById('total-catalogo').textContent = 'R$ ' + fmtBRL(total);
+  document.getElementById('total-catalogo-sub').textContent =
+    `Soma de todos os preços cadastrados (${allProducts.length} produtos)`;
+
+  const pct = allProducts.length > 0 ? Math.round(withPhoto/allProducts.length*100) : 0;
+  document.getElementById('bar-comfoto').style.width = pct + '%';
+  document.getElementById('val-comfoto').textContent = withPhoto;
+  document.getElementById('bar-semfoto').style.width = (100-pct) + '%';
+  document.getElementById('val-semfoto').textContent = withoutPhoto;
+
+  // Month chart (placeholder)
+  const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const data = [0,0,0,0,0,0,0,0,0,0,0,0];
+  const max = 1;
+  document.getElementById('month-chart').innerHTML = months.map((m,i) => `
+    <div class="month-bar">
+      <div class="fill" style="background:${i===new Date().getMonth()?'var(--green)':'var(--bg2)'};height:${Math.max(4,data[i]/max*100)}px;min-height:4px;"></div>
+      <span class="mlabel">${m}</span>
+    </div>`).join('');
+}
+
+// ── Users management ─────────────────────────────────────────────────────
+window.showPage = (page) => {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelector(`.nav-item[onclick="showPage('${page}')"]`)?.classList.add('active');
+  const titles = {dashboard:'Dashboard', relatorios:'Relatórios', usuarios:'Gerenciar Usuários'};
+  document.getElementById('page-title').textContent = titles[page] || page;
+  if (page === 'usuarios') renderUsersTable();
+};
+
+function renderUsersTable() {
+  document.getElementById('users-count').textContent = allUsers.length + ' usuários';
+  const tbody = document.getElementById('users-tbody');
+  if (!allUsers.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="empty">Nenhum usuário cadastrado.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = allUsers.map(u => `
+    <tr>
+      <td><strong>${u.name||'—'}</strong></td>
+      <td style="font-family:'IBM Plex Mono';font-size:12px;">${u.email}</td>
+      <td><span class="role-badge ${u.role}">${u.role}</span></td>
+      <td style="font-family:'IBM Plex Mono';font-size:11px;color:var(--steel);">${fmtDate(u.createdAt)}</td>
+      <td style="font-family:'IBM Plex Mono';font-size:11px;color:var(--steel);">${fmtDate(u.lastLogin)}</td>
+      <td>
+        <select class="role-select" id="sel-${u.id}">
+          <option value="cliente"   ${u.role==='cliente'   ?'selected':''}>Cliente</option>
+          <option value="vendedor"  ${u.role==='vendedor'  ?'selected':''}>Vendedor</option>
+          <option value="gestor"    ${u.role==='gestor'    ?'selected':''}>Gestor</option>
+          <option value="admin"     ${u.role==='admin'     ?'selected':''}>Admin</option>
+        </select>
+        <button class="save-role-btn" onclick="saveRole('${u.id}')">Salvar</button>
+      </td>
+    </tr>`).join('');
+}
+
+window.saveRole = async (uid) => {
+  const sel  = document.getElementById('sel-'+uid);
+  const role = sel.value;
+  const btn  = sel.nextElementSibling;
+  btn.textContent = '...'; btn.disabled = true;
+  try {
+    await setDoc(doc(db,'users',uid),{role},{merge:true});
+    const u = allUsers.find(x => x.id === uid);
+    if (u) u.role = role;
+    btn.textContent = '✓ Salvo!';
+    setTimeout(()=>{ btn.textContent='Salvar'; btn.disabled=false; renderUsersTable(); }, 1500);
+  } catch(e) {
+    btn.textContent = 'Erro!'; btn.disabled=false;
+    setTimeout(()=>{ btn.textContent='Salvar'; }, 1500);
+  }
+};
+
+// ── Logout ───────────────────────────────────────────────────────────────
+window.doLogout = async () => {
+  await signOut(auth);
+  window.location.href = 'login.html';
+};
+
+// ── Helpers ──────────────────────────────────────────────────────────────
+function fmtDate(ts) {
+  if (!ts) return '—';
+  const d = ts.toDate ? ts.toDate() : new Date(ts.seconds*1000);
+  return d.toLocaleDateString('pt-BR');
+}
+function parseBRL(s) {
+  if (!s) return 0;
+  return parseFloat(String(s).replace(/\./g,'').replace(',','.')) || 0;
+}
+function fmtBRL(n) {
+  return n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+</script>
+</body>
+</html>

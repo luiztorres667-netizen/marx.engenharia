@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marx Engenharia — Entrar</title>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@900&family=IBM+Plex+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--g:#1C1F1D;--green:#00FF88;--gd:#00B868;--bg:#F0EEE6;--paper:#fff;--steel:#4A5A63;--line:rgba(28,31,29,.13);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--g);min-height:100vh;display:flex;flex-direction:column;}
+h1,h2{font-family:'Big Shoulders Display';font-weight:900;text-transform:uppercase;letter-spacing:.01em;}
+
+/* ── Header ── */
+.topbar{background:var(--g);padding:14px 28px;display:flex;align-items:center;gap:12px;border-bottom:3px solid var(--gd);}
+.topbar img{height:40px;width:auto;}
+.topbar .brand{color:#f0eee6;}
+.topbar .brand b{display:block;font-family:'Big Shoulders Display';font-size:20px;}
+.topbar .brand span{font-family:'IBM Plex Mono';font-size:9px;letter-spacing:.15em;color:var(--gd);}
+
+/* ── Layout ── */
+.main{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px;}
+.card{background:var(--paper);border:2px solid var(--g);border-radius:4px;width:100%;max-width:440px;box-shadow:6px 6px 0 var(--g);}
+
+/* ── Portal switcher ── */
+.portal-tabs{display:grid;grid-template-columns:1fr 1fr;border-bottom:2px solid var(--g);}
+.portal-tab{padding:14px;text-align:center;font-family:'IBM Plex Mono';font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border:none;background:none;color:var(--steel);border-right:1px solid var(--line);transition:background .15s,color .15s;}
+.portal-tab:last-child{border-right:none;}
+.portal-tab.active{background:var(--g);color:var(--green);}
+
+/* ── Form tabs ── */
+.form-tabs{display:flex;gap:0;padding:0 24px;margin-top:24px;border-bottom:2px solid var(--line);}
+.form-tab{padding:10px 16px;font-family:'IBM Plex Mono';font-size:12px;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;border:none;background:none;color:var(--steel);border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .15s,border-color .15s;}
+.form-tab.active{color:var(--g);border-bottom-color:var(--gd);}
+
+/* ── Form ── */
+.form-body{padding:24px;}
+.form-body h2{font-size:22px;margin-bottom:6px;}
+.form-body p{font-size:13px;color:var(--steel);margin-bottom:22px;}
+.field{margin-bottom:16px;}
+.field label{display:block;font-family:'IBM Plex Mono';font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--steel);margin-bottom:6px;}
+.field input{width:100%;border:1.5px solid var(--g);border-radius:2px;padding:11px 12px;font-family:'IBM Plex Sans';font-size:14px;background:var(--bg);transition:border-color .15s;}
+.field input:focus{outline:none;border-color:var(--gd);background:var(--paper);}
+.btn-submit{width:100%;background:var(--green);color:var(--g);font-family:'IBM Plex Mono';font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:13px;border:2px solid var(--g);border-radius:2px;cursor:pointer;transition:background .15s,transform .15s;margin-top:4px;}
+.btn-submit:hover{background:var(--gd);transform:translateY(-1px);}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.divider{display:flex;align-items:center;gap:10px;margin:18px 0;color:var(--steel);font-size:12px;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--line);}
+
+/* ── Messages ── */
+.msg{padding:10px 14px;border-radius:3px;font-size:13px;margin-bottom:14px;display:none;}
+.msg.error{background:#FFF0F0;border:1px solid #FFB3B3;color:#C0392B;display:block;}
+.msg.success{background:#F0FFF6;border:1px solid #A3E4B7;color:#1E8449;display:block;}
+
+/* ── Admin access note ── */
+.admin-note{background:var(--g);color:#f0eee6;padding:14px 24px;font-family:'IBM Plex Mono';font-size:11px;border-top:2px solid var(--gd);}
+.admin-note span{color:var(--green);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <b>MARX</b>
+    <span>ENGENHARIA SCIENTIFIC STUDY</span>
+  </div>
+</div>
+
+<div class="main">
+  <div class="card">
+    <div class="portal-tabs">
+      <button class="portal-tab active" id="tab-cliente" onclick="switchPortal('cliente')">🛒 Portal do Cliente</button>
+      <button class="portal-tab" id="tab-admin" onclick="switchPortal('admin')">⚙️ Acesso Administrativo</button>
+    </div>
+
+    <div class="form-tabs">
+      <button class="form-tab active" id="ftab-login" onclick="switchFormTab('login')">Entrar</button>
+      <button class="form-tab" id="ftab-register" onclick="switchFormTab('register')">Criar conta</button>
+    </div>
+
+    <div class="form-body">
+      <!-- LOGIN -->
+      <div id="view-login">
+        <h2 id="login-title">Bem-vindo de volta</h2>
+        <p id="login-subtitle">Entre com sua conta para acessar o catálogo.</p>
+        <div class="msg" id="msg-login"></div>
+        <div class="field"><label>E-mail</label><input type="email" id="login-email" placeholder="seu@email.com" autocomplete="email"></div>
+        <div class="field"><label>Senha</label><input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"></div>
+        <button class="btn-submit" id="btn-login" onclick="doLogin()">Entrar</button>
+      </div>
+
+      <!-- REGISTER -->
+      <div id="view-register" style="display:none">
+        <h2>Criar conta</h2>
+        <p>Preencha os dados abaixo para se cadastrar.</p>
+        <div class="msg" id="msg-register"></div>
+        <div class="field"><label>Nome completo</label><input type="text" id="reg-name" placeholder="Seu nome"></div>
+        <div class="field"><label>E-mail</label><input type="email" id="reg-email" placeholder="seu@email.com" autocomplete="email"></div>
+        <div class="field"><label>Senha</label><input type="password" id="reg-password" placeholder="Mínimo 6 caracteres"></div>
+        <div class="field"><label>Confirmar senha</label><input type="password" id="reg-confirm" placeholder="Repita a senha"></div>
+        <button class="btn-submit" id="btn-register" onclick="doRegister()">Criar conta</button>
+      </div>
+    </div>
+
+    <div class="admin-note" id="admin-note" style="display:none">
+      ⚙️ Acesso administrativo — <span>gestores e vendedores</span> entram por aqui. Permissões são concedidas pelo administrador.
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp }     from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged }
+  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getFirestore, doc, setDoc, getDoc, collection, getDocs, serverTimestamp }
+  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+const FIREBASE_CONFIG = {
+  apiKey:"AIzaSyCw3DiBpHlGp8dN9ZSESI6_aq_qsxo5pYw",
+  authDomain:"marx-engenharia.firebaseapp.com",
+  projectId:"marx-engenharia",
+  storageBucket:"marx-engenharia.firebasestorage.app",
+  messagingSenderId:"210866809274",
+  appId:"1:210866809274:web:66387a9a8f6c15f8841583"
+};
+
+const app  = initializeApp(FIREBASE_CONFIG);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// If already logged in → redirect
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return;
+  const snap = await getDoc(doc(db, 'users', user.uid));
+  if (!snap.exists()) return;
+  const role = snap.data().role;
+  const dest = window._portal === 'admin'
+    ? ((['admin','gestor','vendedor'].includes(role)) ? 'admin.html' : 'index.html')
+    : 'index.html';
+  window.location.href = dest;
+});
+
+// ── portal / tab state ──────────────────────────────────────────────────
+window._portal = 'cliente';
+
+window.switchPortal = (p) => {
+  window._portal = p;
+  document.getElementById('tab-cliente').classList.toggle('active', p==='cliente');
+  document.getElementById('tab-admin').classList.toggle('active', p==='admin');
+  document.getElementById('admin-note').style.display = p==='admin' ? 'block' : 'none';
+  if (p==='admin') {
+    document.getElementById('login-title').textContent = 'Acesso Administrativo';
+    document.getElementById('login-subtitle').textContent = 'Gestores e vendedores entram aqui.';
+  } else {
+    document.getElementById('login-title').textContent = 'Bem-vindo de volta';
+    document.getElementById('login-subtitle').textContent = 'Entre com sua conta para acessar o catálogo.';
+  }
+};
+
+window.switchFormTab = (tab) => {
+  document.getElementById('ftab-login').classList.toggle('active', tab==='login');
+  document.getElementById('ftab-register').classList.toggle('active', tab==='register');
+  document.getElementById('view-login').style.display   = tab==='login'    ? '' : 'none';
+  document.getElementById('view-register').style.display = tab==='register' ? '' : 'none';
+};
+
+function showMsg(id, text, type='error') {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = 'msg ' + type;
+}
+
+// ── LOGIN ───────────────────────────────────────────────────────────────
+window.doLogin = async () => {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-password').value;
+  const btn   = document.getElementById('btn-login');
+  if (!email || !pass) { showMsg('msg-login','Preencha e-mail e senha.'); return; }
+  btn.disabled = true; btn.textContent = 'Entrando...';
+  try {
+    const cred = await signInWithEmailAndPassword(auth, email, pass);
+    const snap = await getDoc(doc(db, 'users', cred.user.uid));
+    if (!snap.exists()) throw new Error('Perfil não encontrado.');
+    const role = snap.data().role;
+    // update last login
+    await setDoc(doc(db,'users',cred.user.uid),{lastLogin:serverTimestamp()},{merge:true});
+    if (window._portal === 'admin' && !['admin','gestor','vendedor'].includes(role)) {
+      showMsg('msg-login','Você não tem permissão de acesso administrativo. Use o Portal do Cliente.');
+      btn.disabled=false; btn.textContent='Entrar'; return;
+    }
+    const dest = (window._portal==='admin' && ['admin','gestor','vendedor'].includes(role))
+      ? 'admin.html' : 'index.html';
+    window.location.href = dest;
+  } catch(e) {
+    const msgs = {
+      'auth/user-not-found':'E-mail não encontrado.',
+      'auth/wrong-password':'Senha incorreta.',
+      'auth/invalid-credential':'E-mail ou senha inválidos.',
+      'auth/too-many-requests':'Muitas tentativas. Tente mais tarde.',
+    };
+    showMsg('msg-login', msgs[e.code] || e.message);
+    btn.disabled=false; btn.textContent='Entrar';
+  }
+};
+
+// ── REGISTER ────────────────────────────────────────────────────────────
+window.doRegister = async () => {
+  const name  = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass  = document.getElementById('reg-password').value;
+  const conf  = document.getElementById('reg-confirm').value;
+  const btn   = document.getElementById('btn-register');
+  if (!name)           { showMsg('msg-register','Informe seu nome.'); return; }
+  if (!email)          { showMsg('msg-register','Informe seu e-mail.'); return; }
+  if (pass.length < 6) { showMsg('msg-register','Senha deve ter no mínimo 6 caracteres.'); return; }
+  if (pass !== conf)   { showMsg('msg-register','As senhas não conferem.'); return; }
+  btn.disabled=true; btn.textContent='Criando conta...';
+  try {
+    // Check if first user → becomes admin
+    const usersSnap = await getDocs(collection(db,'users'));
+    const isFirst   = usersSnap.empty;
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    const role = isFirst ? 'admin' : 'cliente';
+    await setDoc(doc(db,'users',cred.user.uid), {
+      name, email, role,
+      createdAt: serverTimestamp(),
+      lastLogin: serverTimestamp(),
+    });
+    showMsg('msg-register',
+      isFirst ? '✅ Conta criada! Você é o primeiro usuário e recebeu acesso de Admin.' :
+                '✅ Conta criada! Aguarde o administrador liberar seu cargo.',
+      'success');
+    setTimeout(()=>{ window.location.href = isFirst ? 'admin.html' : 'index.html'; }, 2000);
+  } catch(e) {
+    const msgs = {
+      'auth/email-already-in-use':'Este e-mail já está cadastrado.',
+      'auth/invalid-email':'E-mail inválido.',
+      'auth/weak-password':'Senha muito fraca.',
+    };
+    showMsg('msg-register', msgs[e.code] || e.message);
+    btn.disabled=false; btn.textContent='Criar conta';
+  }
+};
+
+// Enter key
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const vLogin = document.getElementById('view-login');
+  if (vLogin.style.display !== 'none') window.doLogin();
+  else window.doRegister();
+});
+</script>
+</body>
+</html>
