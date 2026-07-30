@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marx Engenharia — Painel Administrativo</title>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@900&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --g:#1C1F1D;--gs:#2A2D2B;
+  --green:#00FF88;--gd:#00B868;
+  --bg:#F0EEE6;--bg2:#E2DDCE;--paper:#fff;
+  --steel:#4A5A63;--line:rgba(255,255,255,.1);--lineb:rgba(28,31,29,.12);
+  --danger:#E74C3C;--warn:#F39C12;--info:#3498DB;--purple:#9B59B6;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;font-family:'IBM Plex Sans',sans-serif;color:var(--g);background:var(--bg);}
+body{display:flex;}
+
+/* SIDEBAR */
+.sb{width:240px;background:var(--g);color:#f0eee6;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;}
+.sb-logo{padding:20px 18px 14px;border-bottom:1px solid var(--line);}
+.sb-logo .word{font-family:'Big Shoulders Display';font-size:20px;color:#f0eee6;}
+.sb-logo .sub{font-family:'IBM Plex Mono';font-size:8px;letter-spacing:.15em;color:var(--gd);display:block;}
+.sb-logo .tag{font-family:'IBM Plex Mono';font-size:9.5px;color:var(--green);letter-spacing:.08em;margin-top:8px;display:block;}
+.sb-nav{flex:1;padding:12px 0;}
+.sb-sec{font-family:'IBM Plex Mono';font-size:9px;letter-spacing:.12em;color:#507060;padding:10px 18px 4px;text-transform:uppercase;}
+.ni{display:flex;align-items:center;gap:10px;padding:10px 18px;cursor:pointer;color:#CBD2CB;font-size:13px;font-weight:500;border-left:3px solid transparent;transition:all .15s;}
+.ni:hover{background:rgba(255,255,255,.05);color:#f0eee6;}
+.ni.on{background:rgba(0,255,136,.07);color:var(--green);border-left-color:var(--green);}
+.ni svg{width:16px;height:16px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.sb-user{padding:14px 18px;border-top:1px solid var(--line);}
+.sb-user .un{font-size:13px;font-weight:600;color:#f0eee6;}
+.sb-user .ur{font-family:'IBM Plex Mono';font-size:10px;color:var(--gd);margin-top:2px;}
+.btn-out{width:100%;margin-top:10px;background:none;border:1px solid rgba(255,255,255,.18);color:#9AA39A;font-family:'IBM Plex Mono';font-size:11px;padding:8px;border-radius:2px;cursor:pointer;transition:all .15s;}
+.btn-out:hover{background:var(--danger);color:#fff;border-color:var(--danger);}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.topbar{background:var(--paper);border-bottom:2px solid var(--bg2);padding:14px 28px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+.topbar h1{font-family:'Big Shoulders Display';font-size:22px;text-transform:uppercase;}
+.topbar .meta{display:flex;align-items:center;gap:16px;}
+.topbar .date{font-family:'IBM Plex Mono';font-size:11px;color:var(--steel);}
+.btn-venda{background:var(--green);color:var(--g);font-family:'IBM Plex Mono';font-size:11.5px;font-weight:700;letter-spacing:.04em;padding:8px 16px;border:2px solid var(--g);border-radius:2px;cursor:pointer;transition:background .15s;}
+.btn-venda:hover{background:var(--gd);}
+.content{flex:1;overflow-y:auto;padding:24px;}
+
+/* PAGES */
+.page{display:none;} .page.on{display:block;}
+
+/* KPI GRID */
+.kgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+@media(max-width:900px){.kgrid{grid-template-columns:repeat(2,1fr);}}
+.kpi{background:var(--paper);border:2px solid var(--g);border-radius:4px;padding:18px;position:relative;overflow:hidden;}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.kpi.g::after{background:var(--green);}
+.kpi.b::after{background:var(--info);}
+.kpi.o::after{background:var(--warn);}
+.kpi.r::after{background:var(--danger);}
+.kpi.p::after{background:var(--purple);}
+.kpi .lbl{font-family:'IBM Plex Mono';font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--steel);margin-bottom:6px;}
+.kpi .val{font-family:'Big Shoulders Display';font-size:34px;font-weight:900;line-height:1;}
+.kpi .sub{font-size:11.5px;color:var(--steel);margin-top:4px;}
+.kpi .ico{position:absolute;bottom:12px;right:12px;width:26px;height:26px;color:var(--bg2);fill:none;stroke:currentColor;stroke-width:1.5;}
+
+/* SECTION CARD */
+.sc{background:var(--paper);border:2px solid var(--g);border-radius:4px;margin-bottom:18px;overflow:hidden;}
+.sc-head{padding:14px 20px;border-bottom:1px solid var(--lineb);display:flex;justify-content:space-between;align-items:center;}
+.sc-head h3{font-family:'Big Shoulders Display';font-size:17px;text-transform:uppercase;}
+.sc-head span{font-family:'IBM Plex Mono';font-size:11px;color:var(--steel);}
+.sc-body{padding:18px;}
+
+/* CHARTS */
+.chart-row{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;margin-bottom:18px;}
+@media(max-width:900px){.chart-row{grid-template-columns:1fr;}}
+
+.bar-chart{display:flex;flex-direction:column;gap:9px;}
+.bi{display:grid;grid-template-columns:130px 1fr 45px;align-items:center;gap:8px;}
+.bl{font-family:'IBM Plex Mono';font-size:10.5px;color:var(--steel);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bt{height:9px;background:var(--bg2);border-radius:10px;overflow:hidden;}
+.bf{height:100%;border-radius:10px;transition:width .8s ease;}
+.bv{font-family:'IBM Plex Mono';font-size:11px;font-weight:600;text-align:right;}
+
+/* MONTH CHART */
+.mchart{display:flex;align-items:flex-end;gap:6px;height:130px;padding:0 4px;}
+.mb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;}
+.mb .mf{width:100%;border-radius:3px 3px 0 0;margin-top:auto;min-height:4px;cursor:pointer;transition:opacity .2s;}
+.mb .mf:hover{opacity:.8;}
+.mb .ml{font-family:'IBM Plex Mono';font-size:8px;color:var(--steel);}
+.mb .mv{font-family:'IBM Plex Mono';font-size:8px;color:var(--steel);}
+
+/* DONUT */
+.donut-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;}
+.leg-item{display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid var(--lineb);font-size:12.5px;}
+.leg-item:last-child{border-bottom:none;}
+.leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.leg-name{flex:1;}
+.leg-val{font-family:'IBM Plex Mono';font-size:12px;font-weight:600;}
+
+/* TABLES */
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{font-family:'IBM Plex Mono';font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--steel);padding:9px 14px;text-align:left;border-bottom:2px solid var(--bg2);background:var(--bg);}
+.tbl td{padding:11px 14px;border-bottom:1px solid var(--lineb);font-size:13px;vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:#FAFAF8;}
+.rbadge{display:inline-block;font-family:'IBM Plex Mono';font-size:9.5px;letter-spacing:.05em;padding:3px 7px;border-radius:20px;text-transform:uppercase;}
+.rbadge.admin{background:var(--g);color:var(--green);}
+.rbadge.gestor{background:#1A237E;color:#90CAF9;}
+.rbadge.vendedor{background:#1B5E20;color:#A5D6A7;}
+.rbadge.cliente{background:var(--bg2);color:var(--steel);}
+.rsel{border:1.5px solid var(--g);border-radius:2px;padding:4px 7px;font-family:'IBM Plex Mono';font-size:10.5px;background:var(--paper);cursor:pointer;}
+.rsel:focus{outline:none;border-color:var(--gd);}
+.sbtn{margin-left:5px;background:var(--green);color:var(--g);border:1.5px solid var(--g);border-radius:2px;padding:4px 9px;font-family:'IBM Plex Mono';font-size:10px;font-weight:700;cursor:pointer;transition:background .15s;}
+.sbtn:hover{background:var(--gd);}
+.empty{text-align:center;padding:32px;color:var(--steel);font-family:'IBM Plex Mono';font-size:12px;}
+
+/* MODAL NOVA VENDA */
+.overlay{position:fixed;inset:0;background:rgba(28,31,29,.5);z-index:300;display:none;align-items:center;justify-content:center;}
+.overlay.open{display:flex;}
+.modal{background:var(--paper);border:2px solid var(--g);border-radius:4px;box-shadow:6px 6px 0 var(--g);width:100%;max-width:560px;max-height:90vh;overflow-y:auto;}
+.modal-head{padding:16px 20px;border-bottom:2px solid var(--g);display:flex;justify-content:space-between;align-items:center;}
+.modal-head h2{font-family:'Big Shoulders Display';font-size:20px;text-transform:uppercase;}
+.modal-close{font-size:18px;cursor:pointer;color:var(--steel);}
+.modal-close:hover{color:var(--danger);}
+.modal-body{padding:20px;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-family:'IBM Plex Mono';font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--steel);margin-bottom:5px;}
+.field input,.field select,.field textarea{width:100%;border:1.5px solid var(--g);border-radius:2px;padding:10px 12px;font-family:'IBM Plex Sans';font-size:13.5px;background:var(--bg);}
+.field input:focus,.field select:focus{outline:none;border-color:var(--gd);background:var(--paper);}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.modal-foot{padding:16px 20px;border-top:1px solid var(--lineb);display:flex;gap:10px;justify-content:flex-end;}
+.btn-save{background:var(--green);color:var(--g);font-family:'IBM Plex Mono';font-size:12.5px;font-weight:700;padding:11px 20px;border:2px solid var(--g);border-radius:2px;cursor:pointer;transition:background .15s;}
+.btn-save:hover{background:var(--gd);}
+.btn-cancel{background:none;color:var(--steel);font-family:'IBM Plex Mono';font-size:12.5px;padding:11px 16px;border:1.5px solid var(--lineb);border-radius:2px;cursor:pointer;}
+.btn-cancel:hover{background:var(--bg2);}
+.msg-modal{padding:8px 12px;border-radius:3px;font-size:12.5px;margin-bottom:12px;display:none;}
+.msg-modal.ok{background:#F0FFF6;border:1px solid #A3E4B7;color:#1E8449;display:block;}
+.msg-modal.err{background:#FFF0F0;border:1px solid #FFB3B3;color:#C0392B;display:block;}
+
+/* STATUS BADGE */
+.status{font-family:'IBM Plex Mono';font-size:10px;padding:2px 8px;border-radius:20px;}
+.status.concluida{background:#E8F5E9;color:#2E7D32;}
+.status.pendente{background:#FFF8E1;color:#F57F17;}
+.status.cancelada{background:#FFEBEE;color:#C62828;}
+
+/* LOADING / DENIED */
+.loading,.denied{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;text-align:center;padding:20px;width:100%;}
+.loading p,.denied p{font-family:'IBM Plex Mono';font-size:13px;color:var(--steel);}
+.denied h1{font-family:'Big Shoulders Display';font-size:40px;text-transform:uppercase;}
+</style>
+</head>
+<body>
+
+<div class="loading" id="sc-loading"><p>Verificando acesso…</p></div>
+<div class="denied" id="sc-denied" style="display:none">
+  <h1>Acesso Negado</h1>
+  <p>Você não tem permissão para esta área.</p>
+  <a href="index.html" style="color:var(--gd);font-family:'IBM Plex Mono';font-size:13px;">← Voltar ao catálogo</a>
+</div>
+
+<!-- NOVA VENDA MODAL -->
+<div class="overlay" id="overlay-venda">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Registrar Venda</h2>
+      <span class="modal-close" onclick="closeVenda()">✕</span>
+    </div>
+    <div class="modal-body">
+      <div class="msg-modal" id="msg-venda"></div>
+      <div class="field-row">
+        <div class="field"><label>Cliente</label><input type="text" id="v-cliente" placeholder="Nome do cliente"></div>
+        <div class="field"><label>Data da venda</label><input type="date" id="v-data"></div>
+      </div>
+      <div class="field"><label>Itens vendidos (descrição livre)</label>
+        <textarea id="v-itens" rows="3" style="border:1.5px solid var(--g);border-radius:2px;padding:10px 12px;font-family:'IBM Plex Sans';font-size:13px;width:100%;background:var(--bg);resize:vertical;" placeholder="Ex: 10x Cimento CP II, 5x Argamassa AC-III..."></textarea>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Valor total (R$)</label><input type="text" id="v-total" placeholder="0,00" oninput="fmtVenda(this)"></div>
+        <div class="field"><label>Status</label>
+          <select id="v-status">
+            <option value="concluida">✅ Concluída</option>
+            <option value="pendente">⏳ Pendente</option>
+            <option value="cancelada">❌ Cancelada</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeVenda()">Cancelar</button>
+      <button class="btn-save" id="btn-salvar-venda" onclick="salvarVenda()">Salvar venda</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="sc-app" style="display:none;width:100%;display:flex;height:100vh;">
+
+<aside class="sb">
+  <div class="sb-logo">
+    <span class="word">MARX</span>
+    <span class="sub">ENGENHARIA SCIENTIFIC STUDY</span>
+    <span class="tag">// PAINEL ADMINISTRATIVO</span>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-sec">Principal</div>
+    <div class="ni on" onclick="go('dashboard')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</div>
+    <div class="ni" onclick="go('relatorios')"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Relatórios</div>
+    <div class="ni" onclick="go('vendas')"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Vendas</div>
+    <div class="sb-sec" id="sb-adm-sec">Administração</div>
+    <div class="ni" id="ni-users" onclick="go('usuarios')"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Usuários</div>
+    <div class="sb-sec">Site</div>
+    <div class="ni" onclick="window.open('index.html','_blank')"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Ver o Site</div>
+  </nav>
+  <div class="sb-user">
+    <div class="un" id="sb-un">—</div>
+    <div class="ur" id="sb-ur"></div>
+    <button class="btn-out" onclick="sair()">Sair da conta</button>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <h1 id="pg-title">Dashboard</h1>
+    <div class="meta">
+      <span class="date" id="today"></span>
+      <button class="btn-venda" onclick="openVenda()">+ Registrar Venda</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="page on" id="pg-dashboard">
+      <div class="kgrid">
+        <div class="kpi g"><div class="lbl">Produtos</div><div class="val" id="k-prods">—</div><div class="sub">no catálogo</div><svg class="ico" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg></div>
+        <div class="kpi b"><div class="lbl">Usuários</div><div class="val" id="k-users">—</div><div class="sub">cadastrados</div><svg class="ico" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+        <div class="kpi o"><div class="lbl">Vendas no Mês</div><div class="val" id="k-mes">R$ 0</div><div class="sub" id="k-mes-sub">—</div><svg class="ico" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+        <div class="kpi r"><div class="lbl">Total no Ano</div><div class="val" id="k-ano">R$ 0</div><div class="sub" id="k-ano-sub">—</div><svg class="ico" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      </div>
+
+      <div class="chart-row">
+        <div class="sc">
+          <div class="sc-head"><h3>Produtos por Categoria</h3><span id="c-total">0 itens</span></div>
+          <div class="sc-body"><div class="bar-chart" id="bar-cats"></div></div>
+        </div>
+        <div class="sc">
+          <div class="sc-head"><h3>Usuários por Cargo</h3><span id="c-users">0</span></div>
+          <div class="sc-body">
+            <div class="donut-wrap">
+              <svg id="donut" viewBox="0 0 120 120" width="120" height="120">
+                <circle cx="60" cy="60" r="45" fill="none" stroke="#E2DDCE" stroke-width="22"/>
+                <g id="donut-arcs"></g>
+              </svg>
+              <div style="width:100%" id="donut-leg"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sc">
+        <div class="sc-head"><h3>Vendas Recentes</h3><span id="c-vendas-rec">—</span></div>
+        <div style="padding:0;">
+          <table class="tbl"><thead><tr><th>Cliente</th><th>Itens</th><th>Valor</th><th>Data</th><th>Status</th></tr></thead>
+          <tbody id="t-vendas-rec"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- RELATÓRIOS -->
+    <div class="page" id="pg-relatorios">
+      <div class="kgrid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="kpi g"><div class="lbl">Faturamento Total</div><div class="val" id="r-fat-total">R$ 0</div><div class="sub">todas as vendas</div></div>
+        <div class="kpi b"><div class="lbl">Ticket Médio</div><div class="val" id="r-ticket">R$ 0</div><div class="sub" id="r-ticket-sub">por venda</div></div>
+        <div class="kpi o"><div class="lbl">Valor do Catálogo</div><div class="val" id="r-catalogo">R$ 0</div><div class="sub">soma dos preços</div></div>
+      </div>
+
+      <div class="sc">
+        <div class="sc-head"><h3>Faturamento Mensal — <span id="r-ano">2026</span></h3><span id="r-ano-total">R$ 0,00</span></div>
+        <div class="sc-body">
+          <div class="mchart" id="mchart"></div>
+          <div style="margin-top:8px;font-family:'IBM Plex Mono';font-size:10px;color:var(--steel);">Passe o mouse sobre as barras para ver o valor do mês.</div>
+        </div>
+      </div>
+
+      <div class="sc">
+        <div class="sc-head"><h3>Histórico de Vendas</h3><span id="r-vendas-count">0 vendas</span></div>
+        <div style="padding:0;">
+          <table class="tbl"><thead><tr><th>Cliente</th><th>Itens</th><th>Valor</th><th>Data</th><th>Registrado por</th><th>Status</th></tr></thead>
+          <tbody id="t-hist"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- VENDAS -->
+    <div class="page" id="pg-vendas">
+      <div class="kgrid" style="grid-template-columns:repeat(2,1fr);max-width:600px;">
+        <div class="kpi g"><div class="lbl">Vendas Concluídas</div><div class="val" id="v-conc">0</div><div class="sub" id="v-conc-val">R$ 0,00</div></div>
+        <div class="kpi o"><div class="lbl">Vendas Pendentes</div><div class="val" id="v-pend">0</div><div class="sub">aguardando</div></div>
+      </div>
+      <div class="sc">
+        <div class="sc-head"><h3>Todas as Vendas</h3>
+          <button class="btn-venda" onclick="openVenda()">+ Nova Venda</button>
+        </div>
+        <div style="padding:0;">
+          <table class="tbl"><thead><tr><th>Cliente</th><th>Itens</th><th>Valor</th><th>Data</th><th>Status</th><th>Ação</th></tr></thead>
+          <tbody id="t-all-vendas"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- USUÁRIOS -->
+    <div class="page" id="pg-usuarios">
+      <div class="sc">
+        <div class="sc-head"><h3>Gerenciar Usuários</h3><span id="u-count">0 usuários</span></div>
+        <div style="padding:0;">
+          <table class="tbl"><thead><tr><th>Nome</th><th>E-mail</th><th>Cargo</th><th>Cadastro</th><th>Último acesso</th><th>Alterar</th></tr></thead>
+          <tbody id="t-users"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script type="module">
+import { initializeApp }  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getFirestore, doc, getDoc, getDocs, setDoc, addDoc, deleteDoc,
+         collection, query, orderBy, limit, where, serverTimestamp }
+  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+const CFG={apiKey:"AIzaSyCw3DiBpHlGp8dN9ZSESI6_aq_qsxo5pYw",authDomain:"marx-engenharia.firebaseapp.com",projectId:"marx-engenharia",storageBucket:"marx-engenharia.firebasestorage.app",messagingSenderId:"210866809274",appId:"1:210866809274:web:66387a9a8f6c15f8841583"};
+
+const app=initializeApp(CFG);
+const auth=getAuth(app);
+const db=getFirestore(app);
+
+let role='', uid='', userName='';
+let allProducts=[], allUsers=[], allVendas=[];
+
+// ── Auth guard ──────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async user => {
+  if(!user){ location.href='login.html'; return; }
+  const snap=await getDoc(doc(db,'users',user.uid));
+  if(!snap.exists()){ location.href='login.html'; return; }
+  const d=snap.data(); role=d.role||'cliente'; uid=user.uid; userName=d.nome||user.email;
+  if(!['admin','gestor'].includes(role)){
+    document.getElementById('sc-loading').style.display='none';
+    document.getElementById('sc-denied').style.display='flex'; return;
+  }
+  document.getElementById('sb-un').textContent=userName;
+  document.getElementById('sb-ur').textContent=role.toUpperCase();
+  document.getElementById('today').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  if(role!=='admin'){
+    document.getElementById('sb-adm-sec').style.display='none';
+    document.getElementById('ni-users').style.display='none';
+  }
+  document.getElementById('sc-loading').style.display='none';
+  document.getElementById('sc-app').style.display='flex';
+  await loadAll();
+});
+
+async function loadAll(){
+  await Promise.all([loadProducts(), loadUsers(), loadVendas()]);
+  renderDashboard(); renderRelatorios(); renderVendas();
+}
+
+async function loadProducts(){
+  try{ const s=await getDoc(doc(db,'catalog','products')); allProducts=s.exists()?(s.data().items||[]): []; }catch(e){ allProducts=[]; }
+}
+async function loadUsers(){
+  try{ const s=await getDocs(collection(db,'users')); allUsers=s.docs.map(d=>({id:d.id,...d.data()})); }catch(e){ allUsers=[]; }
+}
+async function loadVendas(){
+  try{ const s=await getDocs(query(collection(db,'vendas'),orderBy('data','desc'))); allVendas=s.docs.map(d=>({id:d.id,...d.data()})); }catch(e){ allVendas=[]; }
+}
+
+// ── Helpers ─────────────────────────────────────────────────────────────
+function fmtBRL(n){ return 'R$ '+Number(n||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function parseBRL(s){ return parseFloat(String(s||0).replace(/\./g,'').replace(',','.'))||0; }
+function fmtDate(ts){ if(!ts) return '—'; const d=ts.toDate?ts.toDate():new Date(ts.seconds*1000); return d.toLocaleDateString('pt-BR'); }
+function now(){ return new Date(); }
+function getMonth(ts){ if(!ts) return -1; const d=ts.toDate?ts.toDate():new Date(ts.seconds*1000); return d.getMonth(); }
+function getYear(ts){ if(!ts) return -1; const d=ts.toDate?ts.toDate():new Date(ts.seconds*1000); return d.getFullYear(); }
+
+// ── Dashboard ────────────────────────────────────────────────────────────
+function renderDashboard(){
+  const curYear=now().getFullYear(), curMonth=now().getMonth();
+  const conc=allVendas.filter(v=>v.status==='concluida');
+  const mes=conc.filter(v=>getMonth(v.data)===curMonth&&getYear(v.data)===curYear);
+  const ano=conc.filter(v=>getYear(v.data)===curYear);
+  const sumMes=mes.reduce((s,v)=>s+parseBRL(v.total),0);
+  const sumAno=ano.reduce((s,v)=>s+parseBRL(v.total),0);
+
+  document.getElementById('k-prods').textContent=allProducts.length+'+';
+  document.getElementById('k-users').textContent=allUsers.length;
+  document.getElementById('k-mes').textContent=fmtBRL(sumMes);
+  document.getElementById('k-mes-sub').textContent=mes.length+' venda'+(mes.length!==1?'s':'')+' no mês';
+  document.getElementById('k-ano').textContent=fmtBRL(sumAno);
+  document.getElementById('k-ano-sub').textContent=ano.length+' venda'+(ano.length!==1?'s':'')+' no ano';
+
+  // Bar chart
+  const subCount={}, colors=['#00B868','#3498DB','#F39C12','#9B59B6','#E74C3C','#1ABC9C','#E67E22','#2C3E50'];
+  const subLabels={ferramentas:'Ferramentas',eletrica:'Elétrica',hidraulica:'Hidráulica',pisos:'Pisos',alvenaria:'Alvenaria',ferragens:'Ferragens',pintura:'Pintura',madeiras:'Madeiras',cobertura:'Cobertura',portas:'Portas',gesso:'Gesso',loucas:'Louças',jardim:'Jardim',limpeza:'Limpeza',mobcorp:'Mob. Corp.',diagnostico:'Diagnóstico',mobiliario:'Mob. Clínico',laboratorio:'Laboratório',descartaveis:'Descartáveis'};
+  allProducts.forEach(p=>{ subCount[p.sub]=(subCount[p.sub]||0)+1; });
+  const sorted=Object.entries(subCount).sort((a,b)=>b[1]-a[1]);
+  const maxC=sorted[0]?.[1]||1;
+  document.getElementById('c-total').textContent=allProducts.length+' itens';
+  document.getElementById('bar-cats').innerHTML=sorted.slice(0,10).map(([s,c],i)=>`<div class="bi"><span class="bl">${subLabels[s]||s}</span><div class="bt"><div class="bf" style="background:${colors[i%colors.length]};width:${Math.round(c/maxC*100)}%"></div></div><span class="bv">${c}</span></div>`).join('');
+
+  // Donut
+  const rc={admin:0,gestor:0,vendedor:0,cliente:0};
+  allUsers.forEach(u=>{if(rc[u.role]!==undefined)rc[u.role]++;});
+  const rcColors={admin:'#1C1F1D',gestor:'#1565C0',vendedor:'#2E7D32',cliente:'#607D8B'};
+  const rcLabels={admin:'Admin',gestor:'Gestor',vendedor:'Vendedor',cliente:'Cliente'};
+  const tot=allUsers.length||1;
+  document.getElementById('c-users').textContent=allUsers.length+' usuários';
+  const arcs=document.getElementById('donut-arcs'); arcs.innerHTML='';
+  const circ=2*Math.PI*45; let off=0;
+  Object.entries(rc).forEach(([r,c])=>{
+    if(!c)return; const pct=c/tot; const dash=pct*circ;
+    const a=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    a.setAttribute('cx','60');a.setAttribute('cy','60');a.setAttribute('r','45');
+    a.setAttribute('fill','none');a.setAttribute('stroke',rcColors[r]);a.setAttribute('stroke-width','22');
+    a.setAttribute('stroke-dasharray',`${dash} ${circ-dash}`);
+    a.setAttribute('stroke-dashoffset',-off*circ+circ/4); arcs.appendChild(a); off+=pct;
+  });
+  document.getElementById('donut-leg').innerHTML=Object.entries(rc).map(([r,c])=>`<div class="leg-item"><div class="leg-dot" style="background:${rcColors[r]}"></div><span class="leg-name">${rcLabels[r]}</span><span class="leg-val">${c}</span></div>`).join('');
+
+  // Recent sales
+  const rec=allVendas.slice(0,5);
+  document.getElementById('c-vendas-rec').textContent=allVendas.length>0?allVendas.length+' venda'+(allVendas.length!==1?'s':''):'Nenhuma venda ainda';
+  document.getElementById('t-vendas-rec').innerHTML=rec.length?rec.map(v=>`<tr><td><strong>${v.cliente||'—'}</strong></td><td style="font-size:12px;color:var(--steel);">${(v.itens||'').substring(0,40)}${(v.itens||'').length>40?'…':''}</td><td style="font-family:'IBM Plex Mono';font-size:12px;font-weight:600;">${fmtBRL(parseBRL(v.total))}</td><td style="font-family:'IBM Plex Mono';font-size:11px;">${fmtDate(v.data)}</td><td><span class="status ${v.status||'concluida'}">${statusLabel(v.status)}</span></td></tr>`).join(''):'<tr><td colspan="5" class="empty">Nenhuma venda registrada ainda. Clique em "+ Registrar Venda" para começar.</td></tr>';
+}
+
+// ── Relatórios ────────────────────────────────────────────────────────────
+function renderRelatorios(){
+  const conc=allVendas.filter(v=>v.status==='concluida');
+  const fatTotal=conc.reduce((s,v)=>s+parseBRL(v.total),0);
+  const ticket=conc.length?fatTotal/conc.length:0;
+  const catVal=allProducts.reduce((s,p)=>s+parseBRL(p.price),0);
+  const curYear=now().getFullYear();
+
+  document.getElementById('r-fat-total').textContent=fmtBRL(fatTotal);
+  document.getElementById('r-ticket').textContent=fmtBRL(ticket);
+  document.getElementById('r-ticket-sub').textContent=conc.length+' venda'+(conc.length!==1?'s':'');
+  document.getElementById('r-catalogo').textContent=fmtBRL(catVal);
+  document.getElementById('r-ano').textContent=curYear;
+
+  // Monthly chart
+  const months=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const mData=Array(12).fill(0);
+  conc.filter(v=>getYear(v.data)===curYear).forEach(v=>{ const m=getMonth(v.data); if(m>=0) mData[m]+=parseBRL(v.total); });
+  const maxM=Math.max(...mData,1);
+  const anoTotal=mData.reduce((a,b)=>a+b,0);
+  document.getElementById('r-ano-total').textContent=fmtBRL(anoTotal);
+  document.getElementById('mchart').innerHTML=months.map((m,i)=>`
+    <div class="mb">
+      <div class="mv">${mData[i]>0?'R$'+Math.round(mData[i]).toLocaleString('pt-BR'):''}</div>
+      <div class="mf" style="background:${i===now().getMonth()?'var(--green)':'var(--info)'};height:${Math.max(4,mData[i]/maxM*100)}px;" title="${m}: ${fmtBRL(mData[i])}"></div>
+      <span class="ml">${m}</span>
+    </div>`).join('');
+
+  // History
+  document.getElementById('r-vendas-count').textContent=allVendas.length+' venda'+(allVendas.length!==1?'s':'');
+  document.getElementById('t-hist').innerHTML=allVendas.length?allVendas.map(v=>`<tr>
+    <td><strong>${v.cliente||'—'}</strong></td>
+    <td style="font-size:12px;color:var(--steel);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${v.itens||'—'}</td>
+    <td style="font-family:'IBM Plex Mono';font-size:12px;font-weight:600;">${fmtBRL(parseBRL(v.total))}</td>
+    <td style="font-family:'IBM Plex Mono';font-size:11px;">${fmtDate(v.data)}</td>
+    <td style="font-size:12px;">${v.registradoPorNome||'—'}</td>
+    <td><span class="status ${v.status||'concluida'}">${statusLabel(v.status)}</span></td>
+  </tr>`).join(''):'<tr><td colspan="6" class="empty">Nenhuma venda registrada ainda.</td></tr>';
+}
+
+// ── Vendas page ───────────────────────────────────────────────────────────
+function renderVendas(){
+  const conc=allVendas.filter(v=>v.status==='concluida');
+  const pend=allVendas.filter(v=>v.status==='pendente');
+  document.getElementById('v-conc').textContent=conc.length;
+  document.getElementById('v-conc-val').textContent=fmtBRL(conc.reduce((s,v)=>s+parseBRL(v.total),0));
+  document.getElementById('v-pend').textContent=pend.length;
+  document.getElementById('t-all-vendas').innerHTML=allVendas.length?allVendas.map(v=>`<tr>
+    <td><strong>${v.cliente||'—'}</strong></td>
+    <td style="font-size:12px;color:var(--steel);">${(v.itens||'').substring(0,50)}${(v.itens||'').length>50?'…':''}</td>
+    <td style="font-family:'IBM Plex Mono';font-size:12px;font-weight:600;">${fmtBRL(parseBRL(v.total))}</td>
+    <td style="font-family:'IBM Plex Mono';font-size:11px;">${fmtDate(v.data)}</td>
+    <td><span class="status ${v.status||'concluida'}">${statusLabel(v.status)}</span></td>
+    <td><button onclick="excluirVenda('${v.id}')" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:18px;" title="Excluir">✕</button></td>
+  </tr>`).join(''):'<tr><td colspan="6" class="empty">Nenhuma venda registrada. Clique em "+ Nova Venda" para começar.</td></tr>';
+}
+
+function statusLabel(s){ return s==='concluida'?'✅ Concluída':s==='pendente'?'⏳ Pendente':'❌ Cancelada'; }
+
+// ── Usuários page ─────────────────────────────────────────────────────────
+function renderUsers(){
+  document.getElementById('u-count').textContent=allUsers.length+' usuários';
+  document.getElementById('t-users').innerHTML=allUsers.length?allUsers.map(u=>`<tr>
+    <td><strong>${u.nome||u.name||'—'}</strong></td>
+    <td style="font-family:'IBM Plex Mono';font-size:11.5px;">${u.email}</td>
+    <td><span class="rbadge ${u.role}">${u.role}</span></td>
+    <td style="font-family:'IBM Plex Mono';font-size:11px;">${fmtDate(u.criadoEm||u.createdAt)}</td>
+    <td style="font-family:'IBM Plex Mono';font-size:11px;">${fmtDate(u.lastLogin)}</td>
+    <td>
+      <select class="rsel" id="rs-${u.id}">
+        <option value="cliente" ${u.role==='cliente'?'selected':''}>Cliente</option>
+        <option value="vendedor" ${u.role==='vendedor'?'selected':''}>Vendedor</option>
+        <option value="gestor" ${u.role==='gestor'?'selected':''}>Gestor</option>
+        <option value="admin" ${u.role==='admin'?'selected':''}>Admin</option>
+      </select>
+      <button class="sbtn" onclick="saveRole('${u.id}')">Salvar</button>
+    </td>
+  </tr>`).join(''):'<tr><td colspan="6" class="empty">Nenhum usuário ainda.</td></tr>';
+}
+
+window.saveRole=async(uid)=>{
+  const sel=document.getElementById('rs-'+uid), r=sel.value, b=sel.nextElementSibling;
+  b.disabled=true; b.textContent='…';
+  try{ await setDoc(doc(db,'users',uid),{role:r},{merge:true}); const u=allUsers.find(x=>x.id===uid); if(u)u.role=r; b.textContent='✓'; setTimeout(()=>{b.textContent='Salvar';b.disabled=false;renderUsers();},1400); }
+  catch(e){ b.textContent='Erro'; b.disabled=false; }
+};
+
+// ── Modal Nova Venda ──────────────────────────────────────────────────────
+window.openVenda=()=>{
+  document.getElementById('v-cliente').value='';
+  document.getElementById('v-data').value=new Date().toISOString().split('T')[0];
+  document.getElementById('v-itens').value='';
+  document.getElementById('v-total').value='';
+  document.getElementById('v-status').value='concluida';
+  document.getElementById('msg-venda').style.display='none';
+  document.getElementById('overlay-venda').classList.add('open');
+};
+window.closeVenda=()=>document.getElementById('overlay-venda').classList.remove('open');
+
+window.fmtVenda=(el)=>{
+  let d=el.value.replace(/\D/g,'');
+  if(!d){el.value='';return;}
+  while(d.length<3)d='0'+d;
+  let i=d.slice(0,-2).replace(/^0+(?=\d)/,'');
+  el.value=(i||'0')+','+d.slice(-2);
+};
+
+window.salvarVenda=async()=>{
+  const cliente=document.getElementById('v-cliente').value.trim();
+  const dataStr=document.getElementById('v-data').value;
+  const itens=document.getElementById('v-itens').value.trim();
+  const total=document.getElementById('v-total').value;
+  const status=document.getElementById('v-status').value;
+  const msg=document.getElementById('msg-venda');
+  if(!cliente){msg.textContent='Informe o nome do cliente.';msg.className='msg-modal err';return;}
+  if(!dataStr){msg.textContent='Informe a data da venda.';msg.className='msg-modal err';return;}
+  if(!total){msg.textContent='Informe o valor total.';msg.className='msg-modal err';return;}
+  const btn=document.getElementById('btn-salvar-venda'); btn.disabled=true; btn.textContent='Salvando…';
+  try{
+    const dataTs=new Date(dataStr+'T12:00:00');
+    await addDoc(collection(db,'vendas'),{
+      cliente, itens, total, status,
+      data:{seconds:Math.floor(dataTs.getTime()/1000),toDate:()=>dataTs},
+      registradoPor:uid, registradoPorNome:userName,
+      criadoEm:serverTimestamp()
+    });
+    msg.textContent='✅ Venda registrada com sucesso!'; msg.className='msg-modal ok';
+    await loadVendas(); renderDashboard(); renderRelatorios(); renderVendas();
+    setTimeout(()=>window.closeVenda(),1500);
+  }catch(e){ msg.textContent='Erro ao salvar: '+e.message; msg.className='msg-modal err'; }
+  btn.disabled=false; btn.textContent='Salvar venda';
+};
+
+window.excluirVenda=async(id)=>{
+  if(!confirm('Excluir esta venda?'))return;
+  try{ await deleteDoc(doc(db,'vendas',id)); await loadVendas(); renderDashboard(); renderRelatorios(); renderVendas(); }
+  catch(e){ alert('Erro ao excluir: '+e.message); }
+};
+
+// ── Navigation ────────────────────────────────────────────────────────────
+const pgTitles={dashboard:'Dashboard',relatorios:'Relatórios',vendas:'Vendas',usuarios:'Gerenciar Usuários'};
+window.go=(pg)=>{
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  document.getElementById('pg-'+pg).classList.add('on');
+  document.querySelector(`.ni[onclick="go('${pg}')"]`)?.classList.add('on');
+  document.getElementById('pg-title').textContent=pgTitles[pg]||pg;
+  if(pg==='usuarios') renderUsers();
+};
+
+window.sair=async()=>{ await signOut(auth); location.href='login.html'; };
+
+// Close modal clicking overlay
+document.getElementById('overlay-venda').addEventListener('click',e=>{ if(e.target===e.currentTarget) window.closeVenda(); });
+</script>
+</body>
+</html>
